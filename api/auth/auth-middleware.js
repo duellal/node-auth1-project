@@ -1,3 +1,5 @@
+const Users = require(`../users/users-router`)
+
 /*
   If the user does not have a session saved in the server
 
@@ -6,8 +8,16 @@
     "message": "You shall not pass!"
   }
 */
-function restricted() {
-
+function restricted(req, next) {
+  if(req.sessions.user){
+    next()
+  }
+  else{
+    next({
+      status: 401, 
+      message: `You shall not pass!`
+    })
+  }
 }
 
 /*
@@ -18,8 +28,23 @@ function restricted() {
     "message": "Username taken"
   }
 */
-function checkUsernameFree() {
-
+function checkUsernameFree(username, next) {
+  Users.findBy(username)
+    .then(user => {
+      if(user){
+        next({
+          status: 422, 
+          message: `Username taken`
+        })
+      }
+      else{
+        next()
+      }
+    })
+    .catch(err => {
+      next(err)
+    })
+  
 }
 
 /*
@@ -30,8 +55,22 @@ function checkUsernameFree() {
     "message": "Invalid credentials"
   }
 */
-function checkUsernameExists() {
-
+function checkUsernameExists(username, next) {
+  Users.findBy(username)
+    .then(user => {
+      if(!user){
+        next({
+          status: 401, 
+          message: `Invalid credentials`
+        })
+      }
+      else{
+        next()
+      }
+    })
+    .catch(err => {
+      next(err)
+    })
 }
 
 /*
@@ -42,8 +81,21 @@ function checkUsernameExists() {
     "message": "Password must be longer than 3 chars"
   }
 */
-function checkPasswordLength() {
-
+function checkPasswordLength(password, next) {
+  if(!password || password.length <= 3){
+    next({
+      status: 422, 
+      message: `Password must be longer than 3 chars`
+    })
+  }
+  else{
+    next()
+  }
 }
 
-// Don't forget to add these to the `exports` object so they can be required in other modules
+module.exports = {
+  restricted,
+  checkPasswordLength, 
+  checkUsernameExists,
+  checkUsernameFree
+}
