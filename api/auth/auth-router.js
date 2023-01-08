@@ -65,7 +65,7 @@ const {checkUsernameFree, checkPasswordLength, checkUsernameExists} = require(`.
         if(user && bcrypt.compareSync(password, user.password)){
           req.session.user = user
           res.json({
-            message: `Welcome back ${username}`
+            message: `Welcome ${username}`
           })
         }
         else{
@@ -94,12 +94,19 @@ const {checkUsernameFree, checkPasswordLength, checkUsernameExists} = require(`.
   }
  */
 
-  authRouter.get(`/logout`, (req, res) => {
+  authRouter.get(`/logout`, (req, res, next) => {
     if(req.session.user){
-      res.set(`Set-Cookie`, `chocolatechip=; SameSite=Strict; Path=/; Expires=Thu, 01 Jan 1970 00:00:00`)
+      req.session.destroy(err => {
+        if(!err){
+          res.set(`Set-Cookie`, `chocolatechip=; SameSite=Strict; Path=/; Expires=Thu, 01 Jan 1970 00:00:00`)
 
-      res.json({
-        message: `logged out`
+          res.json({
+            message: `logged out`
+          })
+        }
+        else{
+          next(err)
+        }
       })
     }
     else{

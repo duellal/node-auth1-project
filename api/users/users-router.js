@@ -32,10 +32,7 @@ const {restricted} = require(`../auth/auth-middleware`)
       .then(users => {
         res.json(users)
       })
-      .catch(next({
-        status: 401, 
-        message: `You shall not`
-      }))
+      .catch(err => next(err))
   })
 
 // Don't forget to add the router to the `exports` object so it can be required in other modules

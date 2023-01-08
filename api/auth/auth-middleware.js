@@ -33,20 +33,28 @@ function checkUsernameFree(req, res, next) {
 
   Users.findBy({username})
     .then(user => {
-      if(user.username === username){
-        next({
+      if(user === undefined){
+        next()
+      }
+      else{
+         next({
           status: 422, 
           message: `Username taken`
         })
       }
-      else{
-        next()
-      }
+      // if(user.username === username){
+      //   next({
+      //     status: 422, 
+      //     message: `Username taken`
+      //   })
+      // }
+      // else{
+      //   next()
+      // }
     })
     .catch(err => {
       next(err)
     })
-  
 }
 
 /*
@@ -63,7 +71,6 @@ function checkUsernameExists(req, res, next) {
 
   Users.findBy({username})
     .then(user => {
-      console.log(user)
       if(!user){
         next({
           status: 401, 
