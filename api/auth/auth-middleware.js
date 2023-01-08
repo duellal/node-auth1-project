@@ -1,4 +1,4 @@
-const Users = require(`../users/users-router`)
+const Users = require(`../users/users-model`)
 
 /*
   If the user does not have a session saved in the server
@@ -8,8 +8,8 @@ const Users = require(`../users/users-router`)
     "message": "You shall not pass!"
   }
 */
-function restricted(req, next) {
-  if(req.sessions.user){
+function restricted(req, res, next) {
+  if(req.session.user){
     next()
   }
   else{
@@ -23,15 +23,17 @@ function restricted(req, next) {
 /*
   If the username in req.body already exists in the database
 
-  status 422
+  status 422 
   {
     "message": "Username taken"
   }
 */
-function checkUsernameFree(username, next) {
-  Users.findBy(username)
+function checkUsernameFree(req, res, next) {
+  const {username} = req.body
+
+  Users.findBy({username})
     .then(user => {
-      if(user){
+      if(user.username === username){
         next({
           status: 422, 
           message: `Username taken`
@@ -55,9 +57,13 @@ function checkUsernameFree(username, next) {
     "message": "Invalid credentials"
   }
 */
-function checkUsernameExists(username, next) {
-  Users.findBy(username)
+
+function checkUsernameExists(req, res, next) {
+  const {username} = req.body
+
+  Users.findBy({username})
     .then(user => {
+      console.log(user)
       if(!user){
         next({
           status: 401, 
@@ -81,7 +87,9 @@ function checkUsernameExists(username, next) {
     "message": "Password must be longer than 3 chars"
   }
 */
-function checkPasswordLength(password, next) {
+function checkPasswordLength(req, res, next) {
+  const {password} = req.body
+
   if(!password || password.length <= 3){
     next({
       status: 422, 

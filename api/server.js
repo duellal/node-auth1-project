@@ -19,6 +19,8 @@ const session = require(`express-session`)
 const Store = require(`connect-session-knex`)(session)
 
 const server = express();
+const userRouter = require(`./users/users-router`)
+const authRouter = require(`./auth/auth-router`)
 
 server.use(helmet());
 server.use(express.json());
@@ -44,11 +46,8 @@ server.use(session({
   })
 }))
 
-// const userRouter = require(`./users/users-router`)
-// const authRouter = require(`./auth/auth-router`)
-
-// server.use(`/api/users`, userRouter)
-// server.use(`/api/auth`, authRouter)
+server.use(`/api/users`, userRouter)
+server.use(`/api/auth`, authRouter)
 
 
 server.get("/", (req, res) => {

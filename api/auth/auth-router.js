@@ -57,21 +57,25 @@ const {checkUsernameFree, checkPasswordLength, checkUsernameExists} = require(`.
   }
  */
 
-  authRouter.post(`/login`, checkUsernameExists, async (req, res, next) => {
+  authRouter.post(`/login`, checkUsernameExists, (req, res, next) => {
     const {username, password} = req.body
     
-    if(bcrypt.compareSync(password, req.user.password)){
-      req.session.user = req.user
-      res.json({
-        message: `Welcome back ${username}`
+    Users.findBy({username})
+      .then(user => {
+        if(user && bcrypt.compareSync(password, user.password)){
+          req.session.user = user
+          res.json({
+            message: `Welcome back ${username}`
+          })
+        }
+        else{
+          next({
+            status: 401,
+            message: `Invalid credentials`
+          })
+        }
       })
-    }
-    else{
-      next({
-        status: 401,
-        message: `Invalid credentials`
-      })
-    }
+    .catch(next)
   })
 
 /**
