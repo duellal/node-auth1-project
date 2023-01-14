@@ -42,15 +42,6 @@ function checkUsernameFree(req, res, next) {
           message: `Username taken`
         })
       }
-      // if(user.username === username){
-      //   next({
-      //     status: 422, 
-      //     message: `Username taken`
-      //   })
-      // }
-      // else{
-      //   next()
-      // }
     })
     .catch(err => {
       next(err)
